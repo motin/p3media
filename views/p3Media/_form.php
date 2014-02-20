@@ -206,7 +206,7 @@
                             <span class="tooltip-wrapper" data-toggle='tooltip' data-placement="right"
                                  title='<?php echo (($t = Yii::t('p3MediaModule.model', 'tooltip.path')) != 'tooltip.path')?$t:'' ?>'>
                                 <?php
-                            echo $form->textField($model,'path',array('disabled'=>'disabled'));
+                            echo $form->textField($model,'path'/*,array('disabled'=>'disabled')*/);
                             echo $form->error($model,'path')
                             ?>                            </span>
                         </div>
