@@ -63,20 +63,56 @@ class ImportController extends Controller {
         $this->render('upload');
     }
 
-	public function actionUploadFile() {
-		$contents = $this->uploadHandler();
-		echo $contents;
+	public function actionUploadFile($campaignId, $encode = false, $saveMovie = false ) {
+        $contents = $this->uploadHandler(false);
+        if( !empty($contents ) ){
+            foreach ( $contents as $key => $media) {
+                $contents[$key]['toQueue'] = false;
+
+                if( $saveMovie ){
+                    $movie = new Movie;
+                    $movie->setAttributes(
+                        array(
+                            "campaign_id" => $campaignId,
+                            "name" => $media['name'],
+                            "main_movie" => $media['p3_media_id'],
+                            'amazon_path' => UploadComponent::getS3FileUrlByName($media['name'],$campaignId),
+                        )
+                    );
+                    $movieInDB = $movie->findByAttributes(array('main_movie' => $media['p3_media_id']));
+
+                    if (!$movieInDB) {
+                        try {
+                            if ($movie->save()) {
+                                $contents[$key]['movie_id'] = $movie->id;
+                            }
+                        } catch (Exception $e) {
+                            throw new CException($e->getMessage());
+                        }
+                    }
+                    else
+                    {
+                        $contents[$key]['movie_id']  = null;
+                    }
+                    if( $encode )
+                        $contents[$key]['toQueue'] = true;
+                    $contents[$key]['encode'] = $encode;
+                }
+            }
+        }
+
+		echo json_encode($contents);
 		exit;
 		#echo CJSON::encode($result);
 	}
 
-	private function uploadHandler() {
+	private function uploadHandler($json = true) {
 		#$script_dir = Yii::app()->basePath.'/data/p3media';
 		#$script_dir_url = Yii::app()->baseUrl;
 		$options = array(
-			'url' => $this->createUrl("/p3media/p3Media/update", array('path' => Yii::app()->user->id . "/")),
+			'url' => $this->createUrl("/p3media/p3Media/update", array('path' => Yii::app()->user->id ."/")),
 			'upload_dir' => $this->module->getDataPath() . DIRECTORY_SEPARATOR,
-			'upload_url' => $this->createUrl("/p3media/p3Media/update", array('preset' => 'raw', 'path' => Yii::app()->user->id . "/")),
+			'upload_url' => $this->createUrl("/p3media/p3Media/update", array('preset' => 'raw', 'path' => Yii::app()->user->id ."/")),
 			'script_url' => $this->createUrl("/p3media/import/uploadFile", array('path' => Yii::app()->user->id . "/")),
 			'field_name' => 'files',
 			'image_versions' => array(
@@ -113,7 +149,10 @@ class ImportController extends Controller {
 			case 'GET':
 				$upload_handler->get();
 				#$contents = ob_get_contents();
-                $contents = "{}"; // we do not show existing files, since this list may get very long
+                if( $json )
+                    $contents = "{}"; // we do not show existing files, since this list may get very long
+                else
+                    $contents = array();
 				break;
 			case 'POST':
 				// check if file exists
@@ -139,8 +178,14 @@ class ImportController extends Controller {
 								$file->error .= $error[0];
 							}
 							$info[] = $file;
-							echo CJSON::encode($info);
-							exit;
+                            if( $json ){
+                                echo CJSON::encode($info);
+                                exit;
+                            }
+                            else {
+                                return $info;
+                            }
+
 						}
 					}
 
@@ -150,7 +195,10 @@ class ImportController extends Controller {
 				#var_dump($result);exit;
 				$savedMedia = $this->createMedia($result[0]['name'], $this->module->getDataPath() . DIRECTORY_SEPARATOR . $result[0]['name']);
 				$result[0]['p3_media_id'] = $savedMedia->id;
-				$contents = CJSON::encode($result);
+                if( $json )
+                    $contents = CJSON::encode($result);
+                else
+                    $contents = $result;
 				break;
 			case 'DELETE':
 				$upload_handler->delete();
