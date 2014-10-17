@@ -35,7 +35,7 @@ class ImportController extends Controller
         return array(
             array(
                 'allow',
-                'actions' => array('upload', 'uploadPopup', 'uploadFile', 'ckeditorUpload', 'sirTrevorUpload'),
+                'actions' => array('upload', 'uploadPopup', 'uploadFile', 'ckeditorUpload', 'sirTrevorUpload', 'videoUpload'),
                 'expression' => 'Yii::app()->user->checkAccess("P3media.Import.*")',
             ),
             array(
@@ -344,6 +344,48 @@ window.parent.CKEDITOR.tools.callFunction(" . $_GET['CKEditorFuncNum'] . ", '" .
         echo CJSON::encode($response);
         exit;
 
+    }
+
+    public function actionVideoUpload($campaignId, $encode = false, $saveMovie = false)
+    {
+        $contents = $this->uploadHandler();
+        if (!empty($contents)) {
+            foreach ($contents as $key => $media) {
+                $contents[$key]['toQueue'] = false;
+
+                if ($saveMovie) {
+                    $movie = new Movie;
+                    $movie->setAttributes(
+                        array(
+                            "campaign_id" => $campaignId,
+                            "name" => $media['name'],
+                            "main_movie" => $media['p3_media_id'],
+                            'amazon_path' => UploadComponent::getS3FileUrlByName($media['name'], $campaignId),
+                        )
+                    );
+                    $movieInDB = $movie->findByAttributes(array('main_movie' => $media['p3_media_id']));
+
+                    if (!$movieInDB) {
+                        try {
+                            if ($movie->save()) {
+                                $contents[$key]['movie_id'] = $movie->id;
+                            }
+                        } catch (Exception $e) {
+                            throw new CException($e->getMessage());
+                        }
+                    } else {
+                        $contents[$key]['movie_id'] = null;
+                    }
+                    if ($encode) {
+                        $contents[$key]['toQueue'] = true;
+                    }
+                    $contents[$key]['encode'] = $encode;
+                }
+            }
+        }
+
+        echo CJSON::encode($contents);
+        exit;
     }
 
     protected function createMedia($fileName, $fullFilePath)
