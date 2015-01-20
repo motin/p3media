@@ -35,7 +35,7 @@ class ImportController extends Controller
         return array(
             array(
                 'allow',
-                'actions' => array('upload', 'uploadPopup', 'uploadFile', 'ckeditorUpload', 'sirTrevorUpload'),
+                'actions' => array('upload', 'uploadPopup', 'uploadFile', 'ckeditorUpload', 'sirTrevorUpload', 'filepickerUrl'),
                 'expression' => 'Yii::app()->user->checkAccess("P3media.Import.*")',
             ),
             array(
@@ -339,6 +339,65 @@ window.parent.CKEDITOR.tools.callFunction(" . $_GET['CKEditorFuncNum'] . ", '" .
 
         } else {
             header("HTTP/1.1 500 No temporary file found after upload.");
+        }
+
+        echo CJSON::encode($response);
+        exit;
+
+    }
+
+    protected function downloadRemoteFile($url, $destination)
+    {
+        $BUFSIZ = 4095;
+        $rfile = fopen($url, 'r');
+        $lfile = fopen($destination, 'w');
+        while (!feof($rfile)) {
+            fwrite($lfile, fread($rfile, $BUFSIZ), $BUFSIZ);
+        }
+        fclose($rfile);
+        fclose($lfile);
+        return $lfile;
+    }
+
+    /**
+     * Action for importing a file available on a public uri
+     *
+     * @param $root relative base folder
+     * @return array|mixed
+     * @throws CException
+     */
+    public function actionFilepickerUrl()
+    {
+
+        $response = new stdClass();
+        $response->message = "File";
+
+        if ($_POST['url']) {
+
+            $fileName = $_POST['filename'];
+            $dataFilePath = $this->module->getDataPath() . DIRECTORY_SEPARATOR . $fileName;
+
+            if ($this->downloadRemoteFile($_POST['url'], $dataFilePath)) {
+
+                /* @var P3Media $model */
+                $model = $this->createMedia($fileName, $dataFilePath);
+
+                if ($model) {
+                    $response->file = array(
+                        'url' => $model->createUrl("original-public", true),
+                        'media' => $model->attributes,
+                    );
+                    header("HTTP/1.1 200 OK");
+                } else {
+                    header("HTTP/1.1 500 Database record could not be saved.");
+                }
+
+            } else {
+                header("HTTP/1.1 500 File could not be saved.");
+            }
+
+        } else {
+            header("HTTP/1.1 500 No url to download locally.");
         }
 
         echo CJSON::encode($response);
