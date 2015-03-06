@@ -42,15 +42,21 @@ class P3Media extends BaseP3Media
                 'Access' => array(
                     'class' => '\PhAccessBehavior'
                 ),
+                */
+                /*
                 'AdjacencyList' => array(
                     'class' => '\AdjacencyListBehavior',
                     'parentAttribute' => 'tree_parent_id',
                     'parentRelation' => 'treeParent',
                     'childrenRelation' => 'p3Medias'
                 ),
+                */
+                /*
                 'EventBridge' => array(
                     'class' => 'EventBridgeBehavior',
                 ),
+                */
+                /*
                 'LoggableBehavior' => array(
                     'class' => 'vendor.sammaye.auditrail2.behaviors.LoggableBehavior',
                     'ignored' => array(
@@ -58,6 +64,8 @@ class P3Media extends BaseP3Media
                         'updated_at',
                     )
                 ),
+                */
+                /*
                 'Status' => array(
                     'class' => 'vendor.yiiext.status-behavior.EStatusBehavior',
                     'statusField' => 'status'
@@ -70,7 +78,6 @@ class P3Media extends BaseP3Media
                     'setUpdateOnCreate' => true,
                     'timestampExpression' => "date_format(date_create(),'Y-m-d H:i:s');",
                 ),
-                /*
                 'Translatable' => array(
                     'class' => 'vendor.mikehaertl.translatable.Translatable',
                     'translationRelation' => 'p3MediaTranslations',
@@ -83,7 +90,6 @@ class P3Media extends BaseP3Media
                         'description' => 'default_description',
                     ),
                 ),
-                */
                 'UploadBehaviour' => array(
                     'class' => 'PhFileUploadBehavior',
                     'dataAlias' => Yii::app()->getModule('p3media')->dataAlias,
