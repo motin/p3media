@@ -78,6 +78,7 @@ class P3Media extends BaseP3Media
                     'setUpdateOnCreate' => true,
                     'timestampExpression' => "date_format(date_create(),'Y-m-d H:i:s');",
                 ),
+                /*
                 'Translatable' => array(
                     'class' => 'vendor.mikehaertl.translatable.Translatable',
                     'translationRelation' => 'p3MediaTranslations',
@@ -90,6 +91,7 @@ class P3Media extends BaseP3Media
                         'description' => 'default_description',
                     ),
                 ),
+                */
                 'UploadBehaviour' => array(
                     'class' => 'PhFileUploadBehavior',
                     'dataAlias' => Yii::app()->getModule('p3media')->dataAlias,
@@ -99,6 +101,16 @@ class P3Media extends BaseP3Media
                 ),
             )
         );
+    }
+
+    public function getTitle()
+    {
+        return $this->default_title;
+    }
+
+    public function getDescription()
+    {
+        return $this->default_description;
     }
 
     public function rules()
