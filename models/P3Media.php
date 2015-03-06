@@ -38,6 +38,7 @@ class P3Media extends BaseP3Media
         return array_merge(
             parent::behaviors(),
             array(
+                /*
                 'Access' => array(
                     'class' => '\PhAccessBehavior'
                 ),
@@ -61,6 +62,7 @@ class P3Media extends BaseP3Media
                     'class' => 'vendor.yiiext.status-behavior.EStatusBehavior',
                     'statusField' => 'status'
                 ),
+                */
                 'Timestamp' => array(
                     'class' => 'zii.behaviors.CTimestampBehavior',
                     'createAttribute' => 'created_at',
@@ -68,6 +70,7 @@ class P3Media extends BaseP3Media
                     'setUpdateOnCreate' => true,
                     'timestampExpression' => "date_format(date_create(),'Y-m-d H:i:s');",
                 ),
+                /*
                 'Translatable' => array(
                     'class' => 'vendor.mikehaertl.translatable.Translatable',
                     'translationRelation' => 'p3MediaTranslations',
@@ -80,6 +83,7 @@ class P3Media extends BaseP3Media
                         'description' => 'default_description',
                     ),
                 ),
+                */
                 'UploadBehaviour' => array(
                     'class' => 'PhFileUploadBehavior',
                     'dataAlias' => Yii::app()->getModule('p3media')->dataAlias,
