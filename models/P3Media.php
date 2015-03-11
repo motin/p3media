@@ -38,11 +38,9 @@ class P3Media extends BaseP3Media
         return array_merge(
             parent::behaviors(),
             array(
-                /*
                 'Access' => array(
                     'class' => '\PhAccessBehavior'
                 ),
-                */
                 /*
                 'AdjacencyList' => array(
                     'class' => '\AdjacencyListBehavior',
