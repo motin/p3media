@@ -82,8 +82,8 @@ class P3Media extends BaseP3Media
                 ),
                 'UploadBehaviour' => array(
                     'class' => 'PhFileUploadBehavior',
-                    'dataAlias' => Yii::app()->getModule('p3media')->dataAlias,
-                    'trashAlias' => Yii::app()->getModule('p3media')->dataAlias . ".trash",
+                    'dataAlias' => Yii::app()->getModule('p3media') ? Yii::app()->getModule('p3media')->dataAlias : null,
+                    'trashAlias' => Yii::app()->getModule('p3media') ? Yii::app()->getModule('p3media')->dataAlias . ".trash" : null,
                     'dataSubdirectory' => Yii::app()->user->id,
                     'uploadInstance' => 'fileUpload',
                 ),
